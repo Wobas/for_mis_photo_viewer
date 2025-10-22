@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource prefix="/">
+    <file alias="decrease_loupe">resources/images/decrease_loupe.png</file>
+    <file alias="increase_loupe">resources/images/increase_loupe.png</file>
+</qresource>
+</RCC>
