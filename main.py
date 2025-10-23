@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-import ui
+import app.ui as ui
 
 def main():
     app = QApplication(sys.argv)

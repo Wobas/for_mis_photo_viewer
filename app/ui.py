@@ -3,19 +3,17 @@ from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                             QPushButton, QFileDialog, QWidget, QLabel, QScrollArea,
                             QMessageBox, QDialog, QAction, QGridLayout)
 from PyQt5.QtGui import QPixmap, QImage, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QPalette
-from save_image_dialog import SaveImageDialog
-import resources_rc
+from . import resources_rc
+from .my_image import MyImage, ImageOpeningError, ImageSavingError
 
 class ImageViewer(QMainWindow):
     def __init__(self):
         super().__init__()
         self.__initUI()
-        self.current_image = None
-        self.current_image_name = "image"
+        self.current_image: MyImage|None = None
         self.scale_factor = 1.0
-        self.current_pixmap = None
 
         self.dragging = False
         self.last_mouse_pos = None
@@ -150,7 +148,7 @@ class ImageViewer(QMainWindow):
         self.statusBar().showMessage('Готов к работе')
 
     def __open_image(self):
-        ''' Функция вызова окна открытия изображения   '''
+        ''' Функция вызова окна открытия изображения '''
         file_path, _ = QFileDialog.getOpenFileName(
             self, 
             'Открыть изображение', 
@@ -160,13 +158,7 @@ class ImageViewer(QMainWindow):
         
         if file_path:
             try:
-                self.current_image = QImage(file_path)
-                self.current_image_name = os.path.basename(file_path)
-                if self.current_image.isNull():
-                    QMessageBox.warning(self, 'Ошибка', 'Не удалось загрузить изображение')
-                    return
-                    
-                self.current_pixmap = QPixmap.fromImage(self.current_image)
+                self.current_image = MyImage(file_path)
                 self.__display_image()
                 self.scale_factor = 1.0
                 self.nav_up_btn.setEnabled(True)
@@ -179,18 +171,15 @@ class ImageViewer(QMainWindow):
                 self.original_size_btn.setEnabled(True)
                 self.statusBar().showMessage(f'Загружено: {os.path.basename(file_path)}')
                 
+            except ImageOpeningError as e:
+                QMessageBox.warning(self, 'Ошибка', 'Не удалось загрузить изображение')
             except Exception as e:
                 QMessageBox.warning(self, 'Ошибка', f'Ошибка при загрузке изображения: {str(e)}')
     
     def __display_image(self):
         ''' Функция отрисовки изображения '''
-        if self.current_pixmap:
-            scaled_pixmap = self.current_pixmap.scaled(
-                self.current_pixmap.size() * self.scale_factor,
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation
-            )
-            self.image_label.setPixmap(scaled_pixmap)
+        if self.current_image:
+            self.image_label.setPixmap(QPixmap(self.current_image.get_scaled(self.scale_factor)))
     
     def __zoom_in(self):
         ''' Функция увеличения масштаба '''
@@ -220,24 +209,22 @@ class ImageViewer(QMainWindow):
     
     def __save_image(self):
         ''' Функция вызова окна сохранения '''
-        if not self.current_pixmap:
+        if not self.current_image:
             QMessageBox.warning(self, 'Ошибка', 'Нет изображения для сохранения')
             return
             
-        dialog = SaveImageDialog(self, self.current_image_name)
-        if dialog.exec_() == QDialog.Accepted:
-            filename, file_format = dialog.get_save_info()
-            if filename and file_format:
-                try:
-                    # Сохраняем оригинальное изображение, а не масштабированное
-                    success = self.current_image.save(filename, file_format)
-                    if success:
-                        QMessageBox.information(self, 'Успех', f'Изображение сохранено как {filename}')
-                        self.statusBar().showMessage(f'Сохранено: {os.path.basename(filename)}')
-                    else:
-                        QMessageBox.warning(self, 'Ошибка', 'Не удалось сохранить изображение')
-                except Exception as e:
-                    QMessageBox.warning(self, 'Ошибка', f'Ошибка при сохранении: {str(e)}')
+        file_path, _ = QFileDialog.getSaveFileName(self, "Сохранить изображение как...", QDir.homePath(), "JPEG (*.jpg);;PNG (*.png);;BMP (*.bmp);;TIFF (*.tif)")
+        if file_path:
+            try:
+                # Сохраняем оригинальное изображение, а не масштабированное
+                self.current_image.save(file_path)
+                QMessageBox.information(self, 'Успех', f'Изображение сохранено как {file_path}')
+                self.statusBar().showMessage(f'Сохранено: {os.path.basename(file_path)}')
+            except ImageSavingError as e:
+                QMessageBox.warning(self, 'Ошибка', str(e))
+            except Exception as e:
+                QMessageBox.warning(self, 'Ошибка', f'Ошибка при сохранении: {str(e)}')
+        
 
     def __nav_up(self):
         """ Перемещение изображения вверх """
