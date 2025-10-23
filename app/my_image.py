@@ -16,19 +16,24 @@ class MyImage:
         
         self.__name = os.path.splitext(os.path.basename(file_path))[0]
 
-    def save(self, file_path):
+    def save(self, file_path: str):
+        ''' Функция сохранения изображения по указанному пути '''
         if not self.__qimage.save(file_path):
             raise ImageSavingError(f"Не удалось сохранить изображение '{self.__name}'")
     
-    def get_width(self):
+    def get_width(self) -> int:
+        ''' Метод получения ширины изображения '''
         return self.__qimage.width()
     
-    def get_height(self):
+    def get_height(self) -> int:
+        ''' Метод получения высоты изображения '''
         return self.__qimage.height()
     
-    def get_scaled(self, scale):
+    def get_scaled(self, scale: float) -> QImage:
+        ''' Метод, создающий отмасштабированную компию изображения '''
         return self.__qimage.scaled(self.__qimage.size() * scale, Qt.KeepAspectRatio, Qt.SmoothTransformation)
     
-    def get_name(self):
+    def get_name(self) -> str:
+        ''' Метод получеия имени изображения '''
         return self.__name
     

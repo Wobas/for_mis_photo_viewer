@@ -1,8 +1,8 @@
 import os
-from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
-                            QPushButton, QFileDialog, QWidget, QLabel, QScrollArea,
-                            QMessageBox, QDialog, QAction, QGridLayout)
-from PyQt5.QtGui import QPixmap, QImage, QIcon
+from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
+                            QFileDialog, QWidget, QLabel, QScrollArea,
+                            QMessageBox, QAction, QGridLayout,  QPushButton)
+from PyQt5.QtGui import QPixmap, QIcon, QMouseEvent
 from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QPalette
 from . import resources_rc
@@ -139,10 +139,10 @@ class ImageViewer(QMainWindow):
         # Добавляем навигацию в основной layout панели инструментов
         zoom_layout.addLayout(nav_layout)
 
-        # Добавляем разделитель или отступ между группами кнопок
-        spacer = QWidget()
-        spacer.setFixedSize(10, 10)
-        zoom_layout.addWidget(spacer)
+        # # Добавляем разделитель или отступ между группами кнопок
+        # spacer = QWidget()
+        # spacer.setFixedSize(10, 10)
+        # zoom_layout.addWidget(spacer)
 
         # Статус
         self.statusBar().showMessage('Готов к работе')
@@ -251,18 +251,18 @@ class ImageViewer(QMainWindow):
         self.statusBar().showMessage('Перемещение вправо')
 
     # Добавляем методы для обработки событий мыши
-    def __mouse_press_event(self, event):
-        if event.button() == Qt.MiddleButton:
+    def __mouse_press_event(self, ev: QMouseEvent):
+        if ev.button() == Qt.MiddleButton:
             self.dragging = True
-            self.last_mouse_pos = event.globalPos()
+            self.last_mouse_pos = ev.globalPos()
             self.image_label.setCursor(Qt.ClosedHandCursor)
-            event.accept()
+            ev.accept()
         else:
-            event.ignore()
+            ev.ignore()
 
-    def __mouse_move_event(self, event):
+    def __mouse_move_event(self, ev: QMouseEvent):
         if self.dragging and self.last_mouse_pos is not None:
-            current_global_pos = event.globalPos()
+            current_global_pos = ev.globalPos()
             delta = current_global_pos - self.last_mouse_pos
             self.last_mouse_pos = current_global_pos
             
@@ -271,15 +271,15 @@ class ImageViewer(QMainWindow):
             v_scroll = self.scroll_area.verticalScrollBar()
             h_scroll.setValue(h_scroll.value() - delta.x())
             v_scroll.setValue(v_scroll.value() - delta.y())
-            event.accept()
+            ev.accept()
         else:
-            event.ignore()
+            ev.ignore()
 
-    def __mouse_release_event(self, event):
-        if event.button() == Qt.MiddleButton:
+    def __mouse_release_event(self, ev: QMouseEvent):
+        if ev.button() == Qt.MiddleButton:
             self.dragging = False
             self.last_mouse_pos = None
             self.image_label.setCursor(Qt.ArrowCursor)
-            event.accept()
+            ev.accept()
         else:
-            event.ignore()
+            ev.ignore()

@@ -18,3 +18,11 @@ def test_saving_valid():
     image = MyImage("./tests/test_data/image.png")
     image.save("./save_test_imgs_dir/test_image.jpg")
     image = MyImage("./save_test_imgs_dir/test_image.jpg")
+
+def test_scale():
+    image = MyImage("./tests/test_data/image.png")
+    height = image.get_height()
+    width = image.get_width()
+    scaled_image = image.get_scaled(2)
+    assert scaled_image.width() == width * 2
+    assert scaled_image.height() == height * 2
