@@ -1,9 +1,3 @@
-# run_tests.py
-#!/usr/bin/env python3
-"""
-Скрипт для запуска тестов программы просмотра изображений
-"""
-
 import sys
 import os
 import unittest

@@ -8,9 +8,6 @@ from PyQt5.QtGui import QPalette
 from save_image_dialog import SaveImageDialog
 import resources_rc
 
-INCREASE_LOUPE_IMG = "increase_loupe.png"
-DECREASE_LOUPE_IMG = "decrease_loupe.png"
-
 class ImageViewer(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -151,7 +148,6 @@ class ImageViewer(QMainWindow):
 
         # Статус
         self.statusBar().showMessage('Готов к работе')
-
 
     def __open_image(self):
         ''' Функция вызова окна открытия изображения   '''

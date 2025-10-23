@@ -45,7 +45,6 @@ class SaveImageDialog(QDialog):
         buttons_layout.addWidget(self.cancel_btn)
         layout.addRow(buttons_layout)
         
-        
     def __select_directory(self):
         ''' Функция вызова контекстного окна выбора директории для сохранения '''
         directory = QFileDialog.getExistingDirectory(self, 'Выберите директорию')
